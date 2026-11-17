@@ -1,0 +1,23 @@
+Building full cube from cached data...
+Cube built: dims={'lat': 140, 'lon': 168, 'time': 264, 'era5_time': 408, 'month': 12}
+Saving to C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\data\australia\processed\cube.nc
+Australia cells (>=50% inside): 11150
+Cells with any active month: 10699 (outside Australia: 0 -- must be 0)
+NDVI active cell-months removed by QA mask: 0.3%
+QC check -- Australia-mean annual-mean SPEI-3 in known drought years:
+  2002: -0.98  (rank 1 driest of 34)  [OK]
+  2006: -0.25  (rank 15 driest of 34)  [OK]
+  2019: -0.96  (rank 2 driest of 34)  [OK]
+QC check -- Australia-mean annual-mean Tmax z in known heat years:
+  2013: +0.46  (rank 4 hottest of 34)  [OK]
+  2019: +0.83  (rank 1 hottest of 34)  [OK]
+
+Cell-month counts per category (all months, before active-season filter):
+nan         3247430
+normal      2004244
+dry_only     426498
+hot_only     296798
+compound     234310
+Name: count, dtype: int64
+
+Done. Cube saved to C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\data\australia\processed\cube.nc. QC figures in C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\figures\australia.

@@ -1,0 +1,25 @@
+Loading cube from C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\data\australia\processed\cube.nc and events from C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\data\australia\processed\events.csv
+Loaded 177577 events; 93586 with impact (min GPP z <= -1.0 during event or the month after)
+
+Kaplan-Meier recovery (impactful events):
+     event_type  n_events  pct_censored  km_median_rt  km_median_ci_low  km_median_ci_high  p_recovered_by_3m  p_recovered_by_6m  p_recovered_by_12m
+0      compound     66106        21.623           3.0               3.0                3.0              0.582              0.805               0.978
+1  drought_only     10984        23.716           3.0               3.0                3.0              0.536              0.808               0.968
+2     heat_only     16496        38.973           3.0               3.0                3.0              0.536              0.711               0.892
+
+Log-rank tests (descriptive -- events are not independent):
+              a             b  test_statistic  p_value
+0      compound  drought_only         32.8067      0.0
+1      compound     heat_only        545.6915      0.0
+2  drought_only     heat_only        150.1451      0.0
+
+Severity-matched (drought-severity terciles):
+  severity_bin    event_type  n_events  median_severity  km_median_rt  p_recovered_by_12m  logrank_p_within_bin
+0           T1      compound     18796            3.317           3.0               0.970                 0.000
+1           T1  drought_only      6901            3.004           3.0               0.956                 0.000
+2           T2      compound     22418            5.895           3.0               0.974                 0.544
+3           T2  drought_only      3278            5.574           3.0               0.980                 0.544
+4           T3      compound     24892           10.981           3.0               0.986                 0.944
+5           T3  drought_only       805            9.342           3.0               0.987                 0.944
+
+Done. Figures in C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\figures\australia, tables in C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\results\australia.

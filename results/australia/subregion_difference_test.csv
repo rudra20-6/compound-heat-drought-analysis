@@ -1,0 +1,7 @@
+response,effect,difference,estimate,ci_low,ci_high,sig,p_value
+gpp_z,d_hot_only,tropical_north - temperate_south,-0.1245830100067884,-0.2635185049224421,0.007710006810356846,False,0.0674
+gpp_z,d_dry_only,tropical_north - temperate_south,-0.07226020707946534,-0.14791893791469948,0.016898128029584784,False,0.112
+gpp_z,d_compound,tropical_north - temperate_south,-0.10091242073290896,-0.3064178068370016,0.11035341120496381,False,0.3348
+ndvi_z,d_hot_only,tropical_north - temperate_south,-0.09559864762611292,-0.26457320523693667,0.08384583777740395,False,0.2812
+ndvi_z,d_dry_only,tropical_north - temperate_south,-0.052431464097249636,-0.15070948219002628,0.0751241524555459,False,0.426
+ndvi_z,d_compound,tropical_north - temperate_south,-0.013368927102186956,-0.18958319982866015,0.19006655333453237,False,0.845

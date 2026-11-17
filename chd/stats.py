@@ -1,12 +1,15 @@
 """
-Year-block bootstrap used for every confidence interval in the analysis.
-
-Whole years are resampled (not individual cell-months), because cell-months
-from the same year are spatially and temporally correlated.
+Generic statistical helpers shared by impacts.py / recovery.py:
+  - year-block bootstrap (resamples whole years, not individual cell-months,
+    to respect spatial/temporal autocorrelation within a year)
+  - Sen's slope + Mann-Kendall trend test
+  - panel OLS with cell fixed effects and year-clustered SEs
 """
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
+from scipy import stats as sstats
 
 from . import config as cfg
 
@@ -45,6 +48,22 @@ def _ci(boot: np.ndarray):
     return float(lo), float(hi)
 
 
+def bootstrap_p_value(boot: np.ndarray) -> float:
+    """
+    Two-sided bootstrap p-value for H0: statistic = 0, by inverting the
+    percentile interval: p = 2 * min(P*(stat <= 0), P*(stat >= 0)) over the
+    bootstrap replicates. It is consistent with _ci (p < 0.05 exactly when
+    the 95% percentile CI excludes 0). When no replicate crosses 0 the
+    p-value is reported as 1/B (i.e. "p < 1/B"; B = number of replicates).
+    """
+    boot = np.asarray(boot, dtype=float)
+    boot = boot[~np.isnan(boot)]
+    if len(boot) == 0:
+        return np.nan
+    p = 2.0 * min(np.mean(boot <= 0), np.mean(boot >= 0))
+    return float(min(1.0, max(p, 1.0 / len(boot))))
+
+
 def year_block_bootstrap_mean(values: np.ndarray, years: np.ndarray,
                                n_boot: int = cfg.BOOTSTRAP_N,
                                seed: int = cfg.BOOTSTRAP_SEED) -> dict:
@@ -74,6 +93,25 @@ def year_block_bootstrap_mean(values: np.ndarray, years: np.ndarray,
         "n_boot": int(np.sum(~np.isnan(boot))),
         "n_obs": n_obs,
     }
+
+
+def bootstrap_difference(values_a, years_a, values_b, years_b,
+                          n_boot: int = cfg.BOOTSTRAP_N, seed: int = cfg.BOOTSTRAP_SEED) -> dict:
+    """
+    Bootstrap CI for mean(a) - mean(b). Both groups are resampled with the
+    *same* year draws, since they come from the same years (e.g. two stress
+    categories within one study period) and are correlated through them.
+    """
+    year_index = np.unique(np.concatenate([np.asarray(years_a), np.asarray(years_b)]))
+    sa, ca = _per_year_sums(values_a, years_a, year_index)
+    sb, cb = _per_year_sums(values_b, years_b, year_index)
+    w = _year_weights(len(year_index), n_boot, seed)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        boot = (w @ sa) / (w @ ca) - (w @ sb) / (w @ cb)
+    ci_low, ci_high = _ci(boot)
+    return {"estimate": float(sa.sum() / ca.sum() - sb.sum() / cb.sum()),
+            "ci_low": ci_low, "ci_high": ci_high, "p_value": bootstrap_p_value(boot),
+            "se": float(np.nanstd(boot)), "n_boot": int(np.sum(~np.isnan(boot)))}
 
 
 CATEGORY_ORDER = ("normal", "hot_only", "dry_only", "compound")
@@ -126,6 +164,87 @@ def bootstrap_category_contrasts(values: np.ndarray, years: np.ndarray, categori
         lo, hi = _ci(boot[cat])
         out[f"mean_{cat}"] = {"estimate": float(point[cat]), "ci_low": lo, "ci_high": hi}
     for name, est in point_c.items():
-        lo, hi = _ci(np.asarray(boot_c[name]))
-        out[name] = {"estimate": float(est), "ci_low": lo, "ci_high": hi}
+        b = np.asarray(boot_c[name])
+        lo, hi = _ci(b)
+        out[name] = {"estimate": float(est), "ci_low": lo, "ci_high": hi,
+                     "p_value": bootstrap_p_value(b), "se": float(np.nanstd(b))}
     return out
+
+
+# ---------------------------------------------------------------------------
+# Trend tests
+# ---------------------------------------------------------------------------
+def sen_slope_mk_trend(years: np.ndarray, values: np.ndarray) -> dict:
+    """Theil-Sen slope (per year) + Mann-Kendall tau and p-value for a time series."""
+    years = np.asarray(years, dtype=float)
+    values = np.asarray(values, dtype=float)
+    valid = ~np.isnan(values)
+    years, values = years[valid], values[valid]
+    if len(values) < 4:
+        return {"slope": np.nan, "intercept": np.nan, "tau": np.nan, "p_value": np.nan, "n": len(values)}
+
+    slope, intercept, low_slope, high_slope = sstats.theilslopes(values, years)
+    tau, p_value = sstats.kendalltau(years, values)
+    return {
+        "slope": float(slope), "intercept": float(intercept),
+        "slope_ci_low": float(low_slope), "slope_ci_high": float(high_slope),
+        "tau": float(tau), "p_value": float(p_value), "n": int(len(values)),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Panel OLS with cell fixed effects + year-clustered SEs
+# ---------------------------------------------------------------------------
+def panel_fixed_effects_ols(df: pd.DataFrame, y_col: str, x_cols: list[str],
+                             cell_col: str = "cell_id", year_col: str = "year"):
+    """
+    Within-transform (demean by cell_id) panel OLS of y on x_cols, with
+    standard errors clustered by year_col. Returns a statsmodels
+    RegressionResultsWrapper (use .params, .bse, .tvalues, .pvalues).
+
+    Requires statsmodels; import kept local so the rest of the package has
+    no hard dependency on it.
+    """
+    import statsmodels.api as sm
+
+    df = df.dropna(subset=[y_col] + x_cols + [cell_col, year_col]).copy()
+
+    y_demeaned = df[y_col] - df.groupby(cell_col)[y_col].transform("mean")
+    x_demeaned = df[x_cols].apply(lambda col: col - df.groupby(cell_col)[col.name].transform("mean"))
+
+    X = sm.add_constant(x_demeaned)
+    model = sm.OLS(y_demeaned, X)
+    result = model.fit(cov_type="cluster", cov_kwds={"groups": df[year_col]})
+    return result
+
+
+def benjamini_hochberg(p_values) -> np.ndarray:
+    """Benjamini-Hochberg FDR-adjusted p-values (q-values); NaNs are passed through."""
+    p = np.asarray(p_values, dtype=float)
+    q = np.full_like(p, np.nan)
+    ok = ~np.isnan(p)
+    pv = p[ok]
+    m = len(pv)
+    if m == 0:
+        return q
+    order = np.argsort(pv)
+    ranked = pv[order] * m / np.arange(1, m + 1)
+    ranked = np.minimum.accumulate(ranked[::-1])[::-1]
+    adj = np.empty(m)
+    adj[order] = np.minimum(ranked, 1.0)
+    q[ok] = adj
+    return q
+
+
+def amplification_index(mean_by_category: dict[str, float]) -> float:
+    """
+    AI = delta_compound - (delta_hot_only + delta_dry_only), each delta
+    relative to the 'normal' category. AI < 0 means the compound loss is
+    larger (more negative) than the simple sum of single-stressor losses
+    (synergistic / non-additive interaction, per plan H2).
+    """
+    base = mean_by_category["normal"]
+    d_compound = mean_by_category["compound"] - base
+    d_hot = mean_by_category["hot_only"] - base
+    d_dry = mean_by_category["dry_only"] - base
+    return d_compound - (d_hot + d_dry)

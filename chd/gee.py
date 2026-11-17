@@ -3,7 +3,7 @@ Google Earth Engine (GEE) data-access layer.
 
 All server-side aggregation (monthly compositing, reprojection to the
 0.25-degree analysis grid) happens here, keeping the rest of the pipeline
-(indices.py, categories.py, cube.py) completely GEE-free and testable offline.
+(indices.py, events.py, cube.py) completely GEE-free and testable offline.
 
 Nothing in this module is imported by the unit tests -- it requires a live,
 authenticated Earth Engine session (``earthengine authenticate`` +
@@ -56,10 +56,16 @@ def grid_pixel_grid(ee):
     }
 
 
-def india_geometry(ee):
-    """Union geometry of India from LSIB_SIMPLE (boundaries are illustrative, not authoritative)."""
-    fc = ee.FeatureCollection(cfg.INDIA_BOUNDARY).filter(ee.Filter.eq("country_na", "India"))
+def country_geometry(ee, country_na: str | None = None):
+    """Union geometry of the region's country from LSIB_SIMPLE (illustrative, not authoritative)."""
+    name = country_na or cfg.COUNTRY_NAME
+    fc = ee.FeatureCollection(cfg.COUNTRY_BOUNDARY).filter(ee.Filter.eq("country_na", name))
     return fc.geometry()
+
+
+def india_geometry(ee):
+    """Union geometry of India from LSIB_SIMPLE (kept for backward compatibility)."""
+    return country_geometry(ee, "India")
 
 
 # ---------------------------------------------------------------------------
@@ -263,9 +269,9 @@ def fetch_worldcover_fractions(ee) -> dict[str, np.ndarray]:
     return {name: arr[i] for i, name in enumerate(class_names)}
 
 
-def fetch_india_mask(ee) -> np.ndarray:
-    """Fraction of each 0.25-deg cell covered by India (LSIB_SIMPLE union geometry)."""
-    geom = india_geometry(ee)
+def fetch_country_mask(ee) -> np.ndarray:
+    """Fraction of each 0.25-deg cell covered by the region's country (LSIB_SIMPLE union geometry)."""
+    geom = country_geometry(ee)
     # unmask(0, sameFootprint=False) is required: the default sameFootprint=True
     # only fills masked *holes inside* the clipped extent and leaves pixels
     # outside the clip geometry still masked -- confirmed by direct testing
@@ -276,6 +282,9 @@ def fetch_india_mask(ee) -> np.ndarray:
     gridded = reduce_to_grid(ee, mask_img)
     arr = compute_pixels_numpy(ee, gridded, ["india"])
     return arr[0]
+
+
+fetch_india_mask = fetch_country_mask  # backward-compatible name
 
 
 def with_retry(fn, *args, retries=3, backoff=5, **kwargs):

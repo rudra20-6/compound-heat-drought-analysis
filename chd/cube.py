@@ -4,10 +4,9 @@ xarray.Dataset (the "cube"), then derive anomalies, indices, and stress
 categories on top of it.
 
 This module is the seam between the GEE fetch layer (gee.py, network-bound,
-untestable offline) and the pure-numpy analysis layer (indices.py,
-categories.py, unit-tested). `build_raw_cube` only does reshaping/stacking
-(no GEE calls), so it can be exercised in tests with small hand-built .npz
-fixtures.
+untestable offline) and the pure-numpy analysis layer (indices.py, events.py,
+fully unit-tested). `build_raw_cube` only does reshaping/stacking (no GEE
+calls), so it can be exercised in tests with small hand-built .npz fixtures.
 """
 from __future__ import annotations
 
@@ -19,7 +18,7 @@ import xarray as xr
 
 from . import config as cfg
 from .indices import monthly_zscore_array, spi_1d, vpd_kpa, root_zone_soil_moisture
-from .categories import classify_months
+from .events import classify_months
 
 
 def _lat_lon_coords():
@@ -111,10 +110,13 @@ def build_raw_cube(raw_dir: Path = cfg.DATA_RAW) -> xr.Dataset:
                 if name in f:
                     ds[f"frac_{name}"] = (("lat", "lon"), f[name])
 
-    mask_path = raw_dir / "india_mask_0.npz"
+    # Country-fraction mask of the selected region (India: india_mask_0.npz / "india").
+    # Stored as "india_frac"/"is_india" for every region so downstream code is unchanged;
+    # for CHD_REGION=australia these hold the Australia mask.
+    mask_path = raw_dir / f"{cfg.COUNTRY_MASK_NAME}_0.npz"
     if mask_path.exists():
         with np.load(mask_path) as f:
-            ds["india_frac"] = (("lat", "lon"), f["india"])
+            ds["india_frac"] = (("lat", "lon"), f[cfg.COUNTRY_MASK_KEY])
 
     return ds
 
@@ -128,13 +130,15 @@ def add_derived_variables(ds: xr.Dataset) -> xr.Dataset:
     return ds
 
 
-def add_india_mask(ds: xr.Dataset) -> xr.Dataset:
-    """Static mask: is_india (cell >= 50% inside India)."""
+
+def add_region_masks(ds: xr.Dataset) -> xr.Dataset:
+    """Static masks: is_india (cell >= 50% inside India) and peninsular (lat <= 22N)."""
     if "india_frac" in ds:
         ds["is_india"] = ds["india_frac"] >= 0.5
     else:
         ds["is_india"] = xr.DataArray(np.ones((ds.sizes["lat"], ds.sizes["lon"]), dtype=bool),
                                       dims=("lat", "lon"), coords={"lat": ds.lat, "lon": ds.lon})
+    ds["peninsular"] = ds["lat"] <= cfg.PENINSULAR_LAT_MAX
     return ds
 
 
@@ -203,7 +207,9 @@ def align_to_common_time(ds: xr.Dataset, start_year: int, end_year: int) -> xr.D
     """
     Reindex the time-varying variables (on era5_time / gpp_time / ndvi_time)
     onto one shared monthly 'time' axis for the primary analysis period
-    (bounded by GPP availability).
+    (bounded by GPP availability). The full-record stress category is also
+    kept on its own `era5_time` axis as `category_full` for the 1991-2024
+    frequency-trend analysis.
     """
     common_time = _month_index(start_year, end_year)
     out = xr.Dataset(coords=dict(time=common_time, lat=ds.lat, lon=ds.lon))
@@ -216,8 +222,11 @@ def align_to_common_time(ds: xr.Dataset, start_year: int, end_year: int) -> xr.D
         out[var] = ds[var].rename({tdim: "time"}).reindex(time=common_time)
 
     for var in ds.data_vars:
-        if ds[var].dims == ("lat", "lon"):
+        if ds[var].dims == ("lat", "lon") or ds[var].dims == ("lat",):
             out[var] = ds[var]
+
+    if "category" in ds:
+        out["category_full"] = ds["category"]  # keeps era5_time coordinate
     return out
 
 
@@ -241,7 +250,9 @@ def add_active_season_mask(ds: xr.Dataset) -> xr.Dataset:
     A cell-month is 'active' if (a) the cell is inside India, (b) its vegetated
     land-cover fraction >= active_season_veg_frac, and (c) climatological GPP
     for that calendar month is >= active_season_gpp_frac of the cell's peak
-    month. Stored per study-period month as `active_season` (time x lat x lon).
+    month. Stored both per study-period month (`active_season`, time x lat x
+    lon) and per calendar month (`active_by_month`, month x lat x lon) so the
+    1991-2024 trend can reuse the same seasonal mask.
     """
     clim = ds["gpp_gC_m2"].groupby("time.month").mean("time")  # (month, lat, lon)
     peak = clim.max("month")
@@ -256,6 +267,7 @@ def add_active_season_mask(ds: xr.Dataset) -> xr.Dataset:
 
     static_ok = (veg_frac >= cfg.THRESH.active_season_veg_frac) & ds["is_india"]
     active_by_month = (frac_of_peak >= cfg.THRESH.active_season_gpp_frac) & static_ok
+    ds["active_by_month"] = active_by_month
     per_time = active_by_month.sel(month=ds["time"].dt.month).drop_vars("month", errors="ignore")
     ds["active_season"] = per_time.transpose("time", "lat", "lon")
     return ds
@@ -266,11 +278,11 @@ def build_full_cube(raw_dir: Path | None = None, return_climate: bool = False):
     -> align to study period -> vegetation anomalies -> active-season mask.
 
     With return_climate=True also returns the full-record (1991-2024)
-    climate dataset (era5_time axis), used for the data QC checks.
+    climate dataset (era5_time axis), e.g. for QC series and trend analysis.
     """
     ds = build_raw_cube(raw_dir or cfg.DATA_RAW)
     ds = add_derived_variables(ds)
-    ds = add_india_mask(ds)
+    ds = add_region_masks(ds)
     climate = compute_climate_anomalies(ds)
     out = align_to_common_time(climate, cfg.STUDY_START, cfg.STUDY_END)
     out = compute_vegetation_anomalies(out)

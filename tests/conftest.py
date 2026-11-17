@@ -1,5 +1,5 @@
 """Shared pytest fixtures: a small synthetic grid + period standing in for
-the real India cube, so cube/impacts tests never need live Earth Engine data.
+the real India cube, so cube/impacts/recovery tests never need live GEE data.
 """
 import numpy as np
 import pytest

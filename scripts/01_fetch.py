@@ -95,10 +95,10 @@ def fetch_static(ee):
         fractions = with_retry(gee.fetch_worldcover_fractions, ee)
         np.savez_compressed(_cache_path("worldcover", 0), **fractions)
         print("worldcover cached.")
-    if not _already_cached("india_mask", 0):
-        mask = with_retry(gee.fetch_india_mask, ee)
-        np.savez_compressed(_cache_path("india_mask", 0), india=mask)
-        print("india_mask cached.")
+    if not _already_cached(cfg.COUNTRY_MASK_NAME, 0):
+        mask = with_retry(gee.fetch_country_mask, ee)
+        np.savez_compressed(_cache_path(cfg.COUNTRY_MASK_NAME, 0), **{cfg.COUNTRY_MASK_KEY: mask})
+        print(f"{cfg.COUNTRY_MASK_NAME} cached.")
 
 
 def main():
@@ -108,6 +108,8 @@ def main():
     args = parser.parse_args()
 
     ee = init_ee()
+    print(f"Region: {cfg.REGION} ({cfg.COUNTRY_NAME}), grid {cfg.N_LAT}x{cfg.N_LON} "
+          f"lon {cfg.LON_MIN}..{cfg.LON_MAX}, lat {cfg.LAT_MIN}..{cfg.LAT_MAX} -> {cfg.DATA_RAW}")
     gpp_source_path = cfg.DATA_PROCESSED / "gpp_source.txt"
     gpp_source = gpp_source_path.read_text().strip() if gpp_source_path.exists() else "mod17"
 

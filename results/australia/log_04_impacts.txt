@@ -1,0 +1,125 @@
+Loading cube from C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\data\australia\processed\cube.nc
+Long table: 2560613 active Australia cell-months, 10679 cells, years 2001-2022
+category
+normal      1742891
+dry_only     359541
+hot_only     255690
+compound     202491
+Name: count, dtype: int64
+
+gpp_z composites:
+   category        n   mean  ci_low  ci_high  flagged_low_n
+0  compound   202491 -0.770  -0.944   -0.558          False
+1  dry_only   359541 -0.382  -0.477   -0.263          False
+2  hot_only   255690 -0.506  -0.615   -0.381          False
+3    normal  1742891  0.243   0.097    0.389          False
+
+ndvi_z composites:
+   category        n   mean  ci_low  ci_high  flagged_low_n
+0  compound   202171 -0.579  -0.764   -0.356          False
+1  dry_only   358925 -0.410  -0.555   -0.244          False
+2  hot_only   255379 -0.303  -0.454   -0.145          False
+3    normal  1735579  0.197   0.018    0.375          False
+
+gpp_z contrasts (overall):
+                                   0
+n_normal                     1742891
+n_hot_only                    255690
+n_dry_only                    359541
+n_compound                    202491
+mean_normal                    0.243
+mean_hot_only                 -0.506
+mean_dry_only                 -0.382
+mean_compound                  -0.77
+compound_minus_dry            -0.388
+compound_minus_dry_ci_low     -0.515
+compound_minus_dry_ci_high    -0.243
+amplification_index             0.36
+amplification_index_ci_low     0.203
+amplification_index_ci_high    0.531
+amplification_index_sig         True
+
+gpp_z contrasts by dominant_landcover:
+  dominant_landcover  n_normal  n_hot_only  n_dry_only  n_compound  mean_normal  mean_hot_only  mean_dry_only  mean_compound  compound_minus_dry  compound_minus_dry_ci_low  compound_minus_dry_ci_high  amplification_index  amplification_index_ci_low  amplification_index_ci_high  amplification_index_sig
+0           cropland     80989        9836       20341       12496        0.302         -0.401         -0.541         -0.760              -0.219                     -0.382                      -0.057                0.483                       0.312                        0.653                     True
+1          grassland   1002126      149553      198389      110377        0.269         -0.588         -0.450         -0.830              -0.380                     -0.513                      -0.225                0.476                       0.282                        0.679                     True
+2              mixed     84478       12205       19192       10865        0.228         -0.421         -0.332         -0.713              -0.381                     -0.525                      -0.235                0.268                       0.135                        0.409                     True
+3          shrubland    260468       31575       64755       36428        0.248         -0.570         -0.269         -0.799              -0.531                     -0.714                      -0.284                0.287                       0.075                        0.551                     True
+4         tree_cover    314222       52422       56747       32269        0.145         -0.273         -0.233         -0.556              -0.323                     -0.463                      -0.196                0.095                      -0.046                        0.243                    False
+5            wetland       608          99         117          56        0.169         -0.494         -0.135         -0.676              -0.541                     -0.881                      -0.246                0.121                      -0.287                        0.607                    False
+
+gpp_z contrasts by region:
+            region  n_normal  n_hot_only  n_dry_only  n_compound  mean_normal  mean_hot_only  mean_dry_only  mean_compound  compound_minus_dry  compound_minus_dry_ci_low  compound_minus_dry_ci_high  amplification_index  amplification_index_ci_low  amplification_index_ci_high  amplification_index_sig
+0  temperate_south   1125048      150358      249833      145579        0.239         -0.459         -0.363         -0.745              -0.382                     -0.511                      -0.236                0.316                       0.156                        0.497                     True
+1   tropical_north    617843      105332      109708       56912        0.250         -0.572         -0.424         -0.835              -0.410                     -0.618                      -0.161                0.412                       0.188                        0.654                     True
+
+gpp_z contrasts by season:
+         season  n_normal  n_hot_only  n_dry_only  n_compound  mean_normal  mean_hot_only  mean_dry_only  mean_compound  compound_minus_dry  compound_minus_dry_ci_low  compound_minus_dry_ci_high  amplification_index  amplification_index_ci_low  amplification_index_ci_high  amplification_index_sig
+0  DJF (summer)    452484       69384       68995       44698        0.283         -0.701         -0.455         -1.067              -0.612                     -0.750                      -0.419                0.372                       0.239                        0.554                     True
+1  JJA (winter)    445932       65724      106469       54001        0.138         -0.198         -0.308         -0.292               0.016                     -0.232                       0.187                0.353                       0.086                        0.546                     True
+2  MAM (autumn)    496125       79978       68517       42022        0.237         -0.555         -0.484         -0.956              -0.472                     -0.582                      -0.307                0.321                       0.075                        0.617                     True
+3  SON (spring)    348350       40604      115560       61770        0.332         -0.571         -0.346         -0.847              -0.501                     -0.636                      -0.394                0.402                       0.183                        0.615                     True
+
+ndvi_z contrasts (overall):
+                                   0
+n_normal                     1735579
+n_hot_only                    255379
+n_dry_only                    358925
+n_compound                    202171
+mean_normal                    0.197
+mean_hot_only                 -0.303
+mean_dry_only                  -0.41
+mean_compound                 -0.579
+compound_minus_dry            -0.169
+compound_minus_dry_ci_low     -0.285
+compound_minus_dry_ci_high    -0.034
+amplification_index             0.33
+amplification_index_ci_low       0.2
+amplification_index_ci_high    0.473
+amplification_index_sig         True
+
+ndvi_z contrasts by dominant_landcover:
+  dominant_landcover  n_normal  n_hot_only  n_dry_only  n_compound  mean_normal  mean_hot_only  mean_dry_only  mean_compound  compound_minus_dry  compound_minus_dry_ci_low  compound_minus_dry_ci_high  amplification_index  amplification_index_ci_low  amplification_index_ci_high  amplification_index_sig
+0           cropland     80970        9822       20312       12477        0.304         -0.305         -0.584         -0.782              -0.198                     -0.343                      -0.041                0.411                       0.203                        0.620                     True
+1          grassland   1000347      149463      198247      110173        0.200         -0.327         -0.436         -0.587              -0.151                     -0.292                       0.009                0.376                       0.210                        0.551                     True
+2              mixed     84010       12191       19138       10836        0.206         -0.271         -0.401         -0.585              -0.184                     -0.293                      -0.057                0.293                       0.176                        0.419                     True
+3          shrubland    260405       31573       64746       36426        0.142         -0.190         -0.255         -0.396              -0.140                     -0.287                       0.031                0.192                       0.018                        0.393                     True
+4         tree_cover    309245       52231       56365       32203        0.203         -0.308         -0.438         -0.681              -0.243                     -0.396                      -0.109                0.267                       0.152                        0.385                     True
+5            wetland       602          99         117          56        0.116         -0.417         -0.021         -0.465              -0.444                     -0.864                      -0.080                0.089                      -0.339                        0.595                    False
+
+ndvi_z contrasts by region:
+            region  n_normal  n_hot_only  n_dry_only  n_compound  mean_normal  mean_hot_only  mean_dry_only  mean_compound  compound_minus_dry  compound_minus_dry_ci_low  compound_minus_dry_ci_high  amplification_index  amplification_index_ci_low  amplification_index_ci_high  amplification_index_sig
+0  temperate_south   1124336      150269      249642      145351        0.197         -0.263         -0.394         -0.576              -0.182                     -0.286                      -0.061                0.279                       0.131                        0.444                     True
+1   tropical_north    611243      105110      109283       56820        0.196         -0.359         -0.447         -0.589              -0.143                     -0.371                       0.105                0.413                       0.183                        0.641                     True
+
+ndvi_z contrasts by season:
+         season  n_normal  n_hot_only  n_dry_only  n_compound  mean_normal  mean_hot_only  mean_dry_only  mean_compound  compound_minus_dry  compound_minus_dry_ci_low  compound_minus_dry_ci_high  amplification_index  amplification_index_ci_low  amplification_index_ci_high  amplification_index_sig
+0  DJF (summer)    446997       69231       68583       44607        0.214         -0.380         -0.523         -0.750              -0.226                     -0.358                      -0.026                0.368                       0.210                        0.564                     True
+1  JJA (winter)    445530       65623      106352       53792        0.148         -0.238         -0.328         -0.288               0.040                     -0.168                       0.218                0.426                       0.194                        0.605                     True
+2  MAM (autumn)    495067       79942       68476       42015        0.207         -0.304         -0.621         -0.851              -0.231                     -0.393                      -0.037                0.280                       0.028                        0.573                     True
+3  SON (spring)    347985       40583      115514       61757        0.223         -0.273         -0.294         -0.526              -0.232                     -0.409                      -0.068                0.264                       0.019                        0.495                     True
+
+tropical_north minus temperate_south, effect vs normal:
+  response      effect                        difference  estimate  ci_low  ci_high    sig  p_value
+0    gpp_z  d_hot_only  tropical_north - temperate_south    -0.125  -0.264    0.008  False    0.067
+1    gpp_z  d_dry_only  tropical_north - temperate_south    -0.072  -0.148    0.017  False    0.112
+2    gpp_z  d_compound  tropical_north - temperate_south    -0.101  -0.306    0.110  False    0.335
+3   ndvi_z  d_hot_only  tropical_north - temperate_south    -0.096  -0.265    0.084  False    0.281
+4   ndvi_z  d_dry_only  tropical_north - temperate_south    -0.052  -0.151    0.075  False    0.426
+5   ndvi_z  d_compound  tropical_north - temperate_south    -0.013  -0.190    0.190  False    0.845
+
+Robustness (SPEI-3 vs SPI-3):
+  response drought_index  n_normal  n_hot_only  n_dry_only  n_compound  mean_normal  mean_hot_only  mean_dry_only  mean_compound  compound_minus_dry  compound_minus_dry_ci_low  compound_minus_dry_ci_high  amplification_index  amplification_index_ci_low  amplification_index_ci_high  amplification_index_sig
+0    gpp_z        SPEI-3   1742891      255690      359541      202491        0.243         -0.506         -0.382         -0.770              -0.388                     -0.515                      -0.243                0.360                       0.203                        0.531                     True
+1    gpp_z         SPI-3   1843904      311463      258528      146718        0.209         -0.515         -0.386         -0.852              -0.466                     -0.608                      -0.301                0.257                       0.112                        0.426                     True
+2   ndvi_z        SPEI-3   1735579      255379      358925      202171        0.197         -0.303         -0.410         -0.579              -0.169                     -0.285                      -0.034                0.330                       0.200                        0.473                     True
+3   ndvi_z         SPI-3   1836578      311141      257926      146409        0.175         -0.256         -0.489         -0.784              -0.295                     -0.426                      -0.143                0.135                       0.015                        0.280                     True
+
+Mechanism check (soil moisture / VPD by category):
+   category   sm_z  vpd_z
+0  compound -0.634  1.511
+1  dry_only -0.402  0.495
+2  hot_only -0.457  1.220
+3    normal  0.247 -0.300
+
+Done. Figures in C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\figures\australia, tables in C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\results\australia.

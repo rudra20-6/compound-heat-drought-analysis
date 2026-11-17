@@ -1,0 +1,24 @@
+Loading cube from C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\data\australia\processed\cube.nc
+Segmenting drought/heat events per cell (this iterates every grid cell)...
+Saved 177577 events to C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\data\australia\processed\events.csv
+
+Event types (medians):
+                   n  median_duration  ...  median_min_gpp_z  pct_with_impact
+event_type                             ...                                   
+compound      107474              4.0  ...             -1.15            61.51
+drought_only   37868              2.0  ...             -0.75            29.01
+heat_only      32235              2.0  ...             -1.02            51.17
+
+[3 rows x 5 columns]
+Share of active cell-months per category: {'normal': 67.9, 'hot_only': 10.0, 'dry_only': 14.0, 'compound': 7.9}
+
+Trend 1991-2024 in % of active Australia cell-months that are compound: slope=0.149 pct-points/yr [-0.018, 0.303], tau=0.198, p=0.0999
+Top-5 compound years:
+ year  pct_area
+ 2019 25.935231
+ 2005 17.412479
+ 2002 16.580782
+ 2006 12.182219
+ 2023 11.723499
+
+Done. Figures in C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\figures\australia, tables in C:\Users\rudra\OneDrive\Desktop\EST\EST\midSub\results\australia.

@@ -1,0 +1,5 @@
+response,test,n_a,n_b,mean_diff,t_stat,p_naive_welch,log10_p
+gpp_z,compound - dry_only,202491,359541,-0.3883890532431812,-180.65998131548915,0.0,-inf
+gpp_z,compound - hot_only,202491,255690,-0.2645195441776024,-108.98724317103937,0.0,-inf
+ndvi_z,compound - dry_only,202171,358925,-0.1693820662980558,-73.4133393265565,0.0,-inf
+ndvi_z,compound - hot_only,202171,255379,-0.27678097642322363,-109.23000916915997,0.0,-inf

@@ -66,7 +66,9 @@ def main():
     check_asset(ee, cfg.SPEI_ASSET)
     check_asset(ee, cfg.MODIS_NDVI)
     check_asset(ee, cfg.WORLDCOVER)
-    check_feature_collection(ee, cfg.INDIA_BOUNDARY, filter_prop="country_na", filter_value="India")
+    print(f"Region: {cfg.REGION} ({cfg.COUNTRY_NAME})")
+    check_feature_collection(ee, cfg.COUNTRY_BOUNDARY, filter_prop="country_na",
+                             filter_value=cfg.COUNTRY_NAME)
 
     print("\nDeciding MODIS GPP source (MOD17 v006 primary, PML_V22a fallback):")
     gpp_source = "pml"
